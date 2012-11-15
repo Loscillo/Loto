@@ -5,7 +5,10 @@ import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -15,17 +18,26 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class main extends JavaPlugin implements Listener{
 	
-	private List<Integer> valeur_id = new ArrayList<Integer>();
-	private long delai = 1200L;
+	public List<Integer> valeur_id = new ArrayList<Integer>();
+	public long delai = 1200L;
+	public boolean protection = true;
+	public String joueur = null;
 	
 	@Override
 	public void onEnable(){
 		getServer().getPluginManager().registerEvents(this, this);
+		
+		// Get config of plugin
 		if(!this.getDataFolder().exists()) this.getDataFolder().mkdir();
 		this.saveDefaultConfig();
 		FileConfiguration loto = this.getConfig();
 		valeur_id = loto.getIntegerList("item");
 		delai = loto.getLong("delai") * 20;
+		protection = loto.getBoolean("protection");
+		
+		// Get permission plugin
+		Vault.load(this);
+		Vault.setupPermissions();
 	}
 	
 	public void onDisable(){
@@ -35,7 +47,10 @@ public class main extends JavaPlugin implements Listener{
 	public void onDamageLoto(BlockDamageEvent event){
 		if(event.getBlock().getTypeId() == 7){
 			final Location bloc = event.getBlock().getLocation();
-			if(bloc.add(0, -1, 0).getBlock().getTypeId() == 35){
+			if(bloc.add(0, -1, 0).getBlock().getTypeId() == 35 && ((protection && event.getPlayer().getName() != joueur) || !protection)){
+				// Inscription du dernier joueur
+				joueur = event.getPlayer().getName();
+				
 				// Tirage au sort de l'item
 				int min = 0;
 				int max = valeur_id.size() - 1;
@@ -53,5 +68,38 @@ public class main extends JavaPlugin implements Listener{
 				}
 			}
 		}
+	}
+	
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
+		if(sender instanceof Player && label.equals("loto")){
+			if(args.length == 2){
+				Player joueur = (Player) sender;
+				if(Vault.perms.playerHas(joueur.getWorld(), joueur.getName(), "loto.modification")){
+					if(args[0].equals("delai")){
+						delai = Long.parseLong(args[1]);
+						sender.sendMessage("Le délai est fixé à " + delai);
+						this.getConfig().set("delai", delai);
+						this.saveConfig();
+						this.delai = delai * 20;
+						return true;
+					}
+					else if(args[0].equals("protection")){
+						protection = Boolean.parseBoolean(args[1]);
+						sender.sendMessage("La protection est fixé à " + protection);
+						this.getConfig().set("protection", protection);
+						this.saveConfig();
+						return true;
+					}
+					else return false;
+				}
+				
+				else{
+					sender.sendMessage("Vous devez avoir la permission loto.modification pour modifier le fichier de configuration.");
+					return false;
+				}
+			}
+		}
+		
+		return false;
 	}
 }

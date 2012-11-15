@@ -1,4 +1,12 @@
 name: Loto
 main: fr.jules_cesar.Loto.main
-version: 1.0
+version: 1.1
 author: Jules_Cesar
+depend: [Vault]
+commands:
+    loto:
+        description: Recharge la configuration du plugin
+permissions:
+    loto.modification:
+      description: Acces a la commande /loto
+      default: false
