@@ -10,3 +10,4 @@ item:
     - 265
 delai: 300
 protection: true
+announce: false

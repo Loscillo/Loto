@@ -3,6 +3,7 @@ package fr.jules_cesar.Loto;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -21,6 +22,7 @@ public class main extends JavaPlugin implements Listener{
 	public List<Integer> valeur_id = new ArrayList<Integer>();
 	public long delai = 1200L;
 	public boolean protection = true;
+	public boolean announce = false;
 	public String joueur = null;
 	
 	@Override
@@ -34,6 +36,7 @@ public class main extends JavaPlugin implements Listener{
 		valeur_id = loto.getIntegerList("item");
 		delai = loto.getLong("delai") * 20;
 		protection = loto.getBoolean("protection");
+		announce = loto.getBoolean("announce");
 		
 		// Get permission plugin
 		Vault.load(this);
@@ -59,7 +62,9 @@ public class main extends JavaPlugin implements Listener{
 					int random = (int)(Math.random() * (max-min)) + min;
 					// Cassage du bloc, passage item et attente avant respawn
 					bloc.add(0, +1, 0).getBlock().breakNaturally(new ItemStack(Material.BEDROCK));
-					bloc.getWorld().dropItemNaturally(bloc.add(0, +1, 0), new ItemStack(valeur_id.get(random), 1));
+					ItemStack gain = new ItemStack(valeur_id.get(random), 1);
+					bloc.getWorld().dropItemNaturally(bloc.add(0, +1, 0), gain);
+					if(announce) getServer().broadcastMessage(ChatColor.GOLD+"[LOTO] "+ChatColor.BLUE+"Le joueur " + joueur + " a gagné " + gain.getType());
 					getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 						public void run() {
 							bloc.add(0, -1, 0).getBlock().setTypeId(7);
@@ -87,6 +92,13 @@ public class main extends JavaPlugin implements Listener{
 						protection = Boolean.parseBoolean(args[1]);
 						sender.sendMessage("La protection est fixŽ ˆ " + protection);
 						this.getConfig().set("protection", protection);
+						this.saveConfig();
+						return true;
+					}
+					else if(args[0].equals("announce")){
+						announce = Boolean.parseBoolean(args[1]);
+						sender.sendMessage("Le message est active : " + announce);
+						this.getConfig().set("announce", announce);
 						this.saveConfig();
 						return true;
 					}
