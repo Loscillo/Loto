@@ -1,6 +1,6 @@
 name: Loto
 main: fr.jules_cesar.Loto.main
-version: 1.1
+version: 1.2
 author: Jules_Cesar
 depend: [Vault]
 commands:
