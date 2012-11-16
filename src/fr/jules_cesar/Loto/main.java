@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -61,10 +60,10 @@ public class main extends JavaPlugin implements Listener{
 				else{
 					int random = (int)(Math.random() * (max-min)) + min;
 					// Cassage du bloc, passage item et attente avant respawn
-					bloc.add(0, +1, 0).getBlock().breakNaturally(new ItemStack(Material.BEDROCK));
+					bloc.add(0, +1, 0).getBlock().setTypeId(0);
 					ItemStack gain = new ItemStack(valeur_id.get(random), 1);
 					bloc.getWorld().dropItemNaturally(bloc.add(0, +1, 0), gain);
-					if(announce) getServer().broadcastMessage(ChatColor.GOLD+"[LOTO] "+ChatColor.BLUE+"Le joueur " + joueur + " a gagné " + gain.getType());
+					if(announce) getServer().broadcastMessage(ChatColor.GOLD+"[LOTO] "+ChatColor.AQUA+"Le joueur " + joueur + " a gagné " + gain.getType());
 					getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 						public void run() {
 							bloc.add(0, -1, 0).getBlock().setTypeId(7);
@@ -102,11 +101,23 @@ public class main extends JavaPlugin implements Listener{
 						this.saveConfig();
 						return true;
 					}
+					else if(args[0].equals("add")){
+						valeur_id.add(Integer.parseInt(args[1]));
+						this.getConfig().set("item", valeur_id);
+						this.saveConfig();
+						return true;
+					}
+					else if(args[0].equals("remove")){
+						valeur_id.remove(new Integer(Integer.parseInt(args[1])));
+						this.getConfig().set("item", valeur_id);
+						this.saveConfig();
+						return true;
+					}
 					else return false;
 				}
 				
 				else{
-					sender.sendMessage("Vous devez avoir la permission loto.modification pour modifier le fichier de configuration.");
+					sender.sendMessage(ChatColor.AQUA + "Permission : loto.modification");
 					return false;
 				}
 			}
