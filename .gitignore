@@ -43,5 +43,5 @@ net/minecraft/.DS_Store
 .classpath
 .project
 
-bin/*
+bin*
 .settings/*

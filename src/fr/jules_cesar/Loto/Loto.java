@@ -3,14 +3,26 @@ package fr.jules_cesar.Loto;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Location;
+
 public class Loto {
-	public List<Integer> valeur_id = new ArrayList<Integer>();
-	public long delai = 1200L;
-	public boolean protection = true;
-	public boolean announce = false;
-	public String joueur = null;
+	public List<Integer> id_list;
+	public long delay;
+	public boolean protection;
+	public boolean announce;
+	public String player;
+	public Location position;
+	
+	public Loto(){
+		id_list = new ArrayList<Integer>();
+		delay = 1200L;
+		protection = true;
+		announce = false;
+		player = null;
+		position = new Location(null, 0, 0, 0);
+	}
 	
 	public void modify(int id, String container, Object value){
-		
+	
 	}
 }

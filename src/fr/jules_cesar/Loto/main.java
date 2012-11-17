@@ -1,10 +1,13 @@
 package fr.jules_cesar.Loto;
 
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,13 +19,12 @@ import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+@SuppressWarnings("unused")
 public class main extends JavaPlugin implements Listener{
 	
-	public List<Integer> valeur_id = new ArrayList<Integer>();
-	public long delai = 1200L;
-	public boolean protection = true;
-	public boolean announce = false;
-	public String joueur = null;
+	private List<Loto> loto_list = new ArrayList<Loto>();
+	private List<Location> loto_position_list = new ArrayList<Location>();
+	private int selected_id = 0;
 	
 	@Override
 	public void onEnable(){
@@ -32,10 +34,25 @@ public class main extends JavaPlugin implements Listener{
 		if(!this.getDataFolder().exists()) this.getDataFolder().mkdir();
 		this.saveDefaultConfig();
 		FileConfiguration loto = this.getConfig();
-		valeur_id = loto.getIntegerList("item");
-		delai = loto.getLong("delai") * 20;
-		protection = loto.getBoolean("protection");
-		announce = loto.getBoolean("announce");
+		Object[] loto_list_temp = loto.getConfigurationSection("loto").getKeys(false).toArray();
+		System.out.println("Chargement de " + loto_list_temp.length + " lotos.");
+		
+		// Initialize all Loto.
+		for(int i = 0; i < loto_list_temp.length; i++){
+			loto_list.add(new Loto());
+			loto_list.get(i).announce = loto.getBoolean("loto."+loto_list_temp[i]+".announce");
+			loto_list.get(i).protection = loto.getBoolean("loto."+loto_list_temp[i]+".protection");
+			loto_list.get(i).delay = loto.getLong("loto."+loto_list_temp[i]+".delay");
+			loto_list.get(i).id_list = loto.getIntegerList("loto."+loto_list_temp[i]+".items");
+			World world = getServer().getWorld(loto.getString("loto."+loto_list_temp[i]+".location.world"));
+			int x = loto.getInt("loto."+loto_list_temp[i]+".location.x");
+			int y = loto.getInt("loto."+loto_list_temp[i]+".location.y");
+			int z = loto.getInt("loto."+loto_list_temp[i]+".location.z");
+			Location position = new Location(world, x, y, z);
+			loto_list.get(i).position = position;
+			loto_position_list.add(position);
+			position.getBlock().setTypeId(7);
+		}
 		
 		// Get permission plugin
 		Vault.load(this);
@@ -47,33 +64,35 @@ public class main extends JavaPlugin implements Listener{
 	
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onDamageLoto(BlockDamageEvent event){
-		if(event.getBlock().getTypeId() == 7){
+		if(loto_position_list.contains(event.getBlock().getLocation())){
 			final Location bloc = event.getBlock().getLocation();
-			if(bloc.add(0, -1, 0).getBlock().getTypeId() == 35 && ((protection && event.getPlayer().getName() != joueur) || !protection)){
-				// Inscription du dernier joueur
-				joueur = event.getPlayer().getName();
+			int i = 0;
+			while(0 < bloc.distance(loto_list.get(i).position)){
+				i++;
+			}
+			if((loto_list.get(i).protection && event.getPlayer().getName() != loto_list.get(i).player) || !loto_list.get(i).protection){
+				loto_list.get(i).player = event.getPlayer().getName();
 				
-				// Tirage au sort de l'item
 				int min = 0;
-				int max = valeur_id.size() - 1;
-				if( max <= min){}
+				int max = loto_list.get(i).id_list.size();
+				if(max <= min){}
 				else{
 					int random = (int)(Math.random() * (max-min)) + min;
-					// Cassage du bloc, passage item et attente avant respawn
-					bloc.add(0, +1, 0).getBlock().setTypeId(0);
-					ItemStack gain = new ItemStack(valeur_id.get(random), 1);
-					bloc.getWorld().dropItemNaturally(bloc.add(0, +1, 0), gain);
-					if(announce) getServer().broadcastMessage(ChatColor.GOLD+"[LOTO] "+ChatColor.AQUA+"Le joueur " + joueur + " a gagné " + gain.getType());
+					bloc.getBlock().setTypeId(0);
+					ItemStack gain = new ItemStack(loto_list.get(i).id_list.get(random), 1);
+					event.getPlayer().getInventory().addItem(gain);
+					if(loto_list.get(i).announce) getServer().broadcastMessage(ChatColor.GOLD+"[LOTO] "+ChatColor.AQUA+"Le joueur " + event.getPlayer().getDisplayName() + " a gagn\u00e9 " + gain.getType());
 					getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 						public void run() {
-							bloc.add(0, -1, 0).getBlock().setTypeId(7);
+							bloc.getBlock().setTypeId(7);
 						}
-						}, delai);
+					}, loto_list.get(i).delay);
 				}
 			}
 		}
 	}
 	
+	/*
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
 		if(sender instanceof Player && label.equals("loto")){
 			if(args.length == 2){
@@ -124,5 +143,5 @@ public class main extends JavaPlugin implements Listener{
 		}
 		
 		return false;
-	}
+	}*/
 }
