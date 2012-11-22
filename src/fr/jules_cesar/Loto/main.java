@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,9 +26,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 @SuppressWarnings("unused")
 public class main extends JavaPlugin implements Listener{
 	
-	private List<Loto> loto_list = new ArrayList<Loto>();
+	private LotoCommand CommandExecutor = new LotoCommand();
+	
+	static List<Loto> loto_list = new ArrayList<Loto>();
 	private List<Location> loto_position_list = new ArrayList<Location>();
-	private int selected_id = 0;
+	static int selected_id = -1;
 	
 	@Override
 	public void onEnable(){
@@ -42,7 +48,7 @@ public class main extends JavaPlugin implements Listener{
 			loto_list.add(new Loto());
 			loto_list.get(i).announce = loto.getBoolean("loto."+loto_list_temp[i]+".announce");
 			loto_list.get(i).protection = loto.getBoolean("loto."+loto_list_temp[i]+".protection");
-			loto_list.get(i).delay = loto.getLong("loto."+loto_list_temp[i]+".delay");
+			loto_list.get(i).delay = loto.getLong("loto."+loto_list_temp[i]+".delay") * 20;
 			loto_list.get(i).id_list = loto.getIntegerList("loto."+loto_list_temp[i]+".items");
 			World world = getServer().getWorld(loto.getString("loto."+loto_list_temp[i]+".location.world"));
 			int x = loto.getInt("loto."+loto_list_temp[i]+".location.x");
@@ -57,6 +63,9 @@ public class main extends JavaPlugin implements Listener{
 		// Get permission plugin
 		Vault.load(this);
 		Vault.setupPermissions();
+		
+		// Initalize command listener
+		getCommand("loto").setExecutor(CommandExecutor);
 	}
 	
 	public void onDisable(){
@@ -70,35 +79,49 @@ public class main extends JavaPlugin implements Listener{
 			while(0 < bloc.distance(loto_list.get(i).position)){
 				i++;
 			}
-			if((loto_list.get(i).protection && event.getPlayer().getName() != loto_list.get(i).player) || !loto_list.get(i).protection){
+			Loto loto = loto_list.get(i);
+			if((loto.protection && !event.getPlayer().getName().equals(loto.player)) || !loto.protection){
 				loto_list.get(i).player = event.getPlayer().getName();
-				
 				int min = 0;
-				int max = loto_list.get(i).id_list.size();
+				int max = loto.id_list.size();
 				if(max <= min){}
 				else{
 					int random = (int)(Math.random() * (max-min)) + min;
 					bloc.getBlock().setTypeId(0);
-					ItemStack gain = new ItemStack(loto_list.get(i).id_list.get(random), 1);
+					ItemStack gain = new ItemStack(loto.id_list.get(random), 1);
 					event.getPlayer().getInventory().addItem(gain);
-					if(loto_list.get(i).announce) getServer().broadcastMessage(ChatColor.GOLD+"[LOTO] "+ChatColor.AQUA+"Le joueur " + event.getPlayer().getDisplayName() + " a gagn\u00e9 " + gain.getType());
+					if(loto.announce) getServer().broadcastMessage(ChatColor.GOLD+"[LOTO] "+ChatColor.AQUA+"Le joueur " + event.getPlayer().getDisplayName() + ChatColor.AQUA + " a gagn\u00e9 " + gain.getType());
 					getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 						public void run() {
 							bloc.getBlock().setTypeId(7);
 						}
-					}, loto_list.get(i).delay);
+					}, loto.delay);
 				}
 			}
 		}
 	}
 	
-	/*
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
+	
+	/*public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
 		if(sender instanceof Player && label.equals("loto")){
-			if(args.length == 2){
+			if(args.length > 0){
 				Player joueur = (Player) sender;
-				if(Vault.perms.playerHas(joueur.getWorld(), joueur.getName(), "loto.modification")){
-					if(args[0].equals("delai")){
+				if(Vault.perms.playerHas(joueur, "loto.modification")){
+					if(args[0].equals("create")){
+						joueur.getLocation().getBlock().setTypeId(7);
+						Loto nouveau = new Loto();
+						World world = joueur.getWorld();
+						int x = joueur.getLocation().getBlockZ();
+						int y = joueur.getLocation().getBlockY();
+						int z = joueur.getLocation().getBlockY();
+						nouveau.position = new Location(world, x, y, z);
+						DateFormat dateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
+				        Date date = new Date();
+				        String name = dateFormat.format(date);
+						this.getConfig().set("loto."+name+".announce", nouveau.announce);
+						this.saveConfig();
+					}
+					/*if(args[0].equals("delai")){
 						delai = Long.parseLong(args[1]);
 						sender.sendMessage("Le délai est fixé à " + delai);
 						this.getConfig().set("delai", delai);
