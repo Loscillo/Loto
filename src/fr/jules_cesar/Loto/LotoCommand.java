@@ -28,9 +28,9 @@ public class LotoCommand extends JavaPlugin implements CommandExecutor {
 						for(int i = 0; i < main.loto_list.size(); i++){
 							Loto loto = main.loto_list.get(i);
 							String world = loto.position.getWorld().getName();
-							int x = loto.position.getBlockX();
+							int x = loto.position.getBlockX(); if(x < 0) x++;
 							int y = loto.position.getBlockY();
-							int z = loto.position.getBlockZ();
+							int z = loto.position.getBlockZ(); if(z < 0) z++;
 							sender.sendMessage(ChatColor.GOLD + "n¡" + i + ChatColor.AQUA + " " + world + " : " + x + "," + y + "," + z);
 						}
 						return true;

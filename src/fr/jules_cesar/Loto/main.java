@@ -51,9 +51,9 @@ public class main extends JavaPlugin implements Listener{
 			loto_list.get(i).delay = loto.getLong("loto."+loto_list_temp[i]+".delay") * 20;
 			loto_list.get(i).id_list = loto.getIntegerList("loto."+loto_list_temp[i]+".items");
 			World world = getServer().getWorld(loto.getString("loto."+loto_list_temp[i]+".location.world"));
-			int x = loto.getInt("loto."+loto_list_temp[i]+".location.x");
+			int x = loto.getInt("loto."+loto_list_temp[i]+".location.x"); if(x < 0) x--;
 			int y = loto.getInt("loto."+loto_list_temp[i]+".location.y");
-			int z = loto.getInt("loto."+loto_list_temp[i]+".location.z");
+			int z = loto.getInt("loto."+loto_list_temp[i]+".location.z"); if(z < 0) z--;
 			Location position = new Location(world, x, y, z);
 			loto_list.get(i).position = position;
 			loto_position_list.add(position);
