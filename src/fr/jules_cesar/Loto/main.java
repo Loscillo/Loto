@@ -47,6 +47,7 @@ public class main extends JavaPlugin implements Listener{
 		// Initialize all Loto.
 		for(int i = 0; i < loto_list_temp.length; i++){
 			loto_list.add(new Loto());
+			loto_list.get(i).name = loto_list_temp[i];
 			loto_list.get(i).announce = loto.getBoolean("loto."+loto_list_temp[i]+".announce");
 			loto_list.get(i).protection = loto.getBoolean("loto."+loto_list_temp[i]+".protection");
 			loto_list.get(i).delay = loto.getLong("loto."+loto_list_temp[i]+".delay") * 20;

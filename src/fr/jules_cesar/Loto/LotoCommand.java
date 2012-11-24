@@ -54,6 +54,9 @@ public class LotoCommand extends JavaPlugin implements CommandExecutor {
 					/* Create */
 					else if(arguments[0].equalsIgnoreCase("create")) return create(player);
 					
+					/* Delete */
+					else if(arguments[0].equalsIgnoreCase("delete")) return delete(player);
+					
 					/* Other */
 					else return showCommands(player);
 				}
@@ -125,5 +128,24 @@ public class LotoCommand extends JavaPlugin implements CommandExecutor {
 		Matcher matcher = pattern.matcher(string);
 		if(matcher.find()) return false;
 		return true;
+	}
+
+	/* Delete a loto */
+	private boolean delete(Player player){
+		if(main.selected_id == -1){
+			player.sendMessage(ChatColor.AQUA + "Please choice a loto before delete it.");
+			return true;
+		}
+		else{
+			int id = main.selected_id;
+			plugin.getConfig().set("loto."+main.loto_list.get(id).name, null);
+			plugin.saveConfig();
+			main.loto_position_list.get(id).getBlock().setTypeId(0);
+			main.loto_list.remove(id);
+			main.loto_position_list.remove(id);
+			main.selected_id = -1;
+			player.sendMessage(ChatColor.AQUA + "Loto number "+id+" deleted.");
+			return true;
+		}
 	}
 }

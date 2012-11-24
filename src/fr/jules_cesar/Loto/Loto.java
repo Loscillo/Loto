@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.Location;
 
 public class Loto {
+	public Object name;
 	public List<Integer> id_list;
 	public long delay;
 	public boolean protection;
@@ -14,6 +15,7 @@ public class Loto {
 	public Location position;
 	
 	public Loto(){
+		name = null;
 		id_list = new ArrayList<Integer>();
 		delay = 1200L;
 		protection = true;
