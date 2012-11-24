@@ -29,7 +29,7 @@ public class main extends JavaPlugin implements Listener{
 	private LotoCommand CommandExecutor = new LotoCommand();
 	
 	static List<Loto> loto_list = new ArrayList<Loto>();
-	private List<Location> loto_position_list = new ArrayList<Location>();
+	static List<Location> loto_position_list = new ArrayList<Location>();
 	static int selected_id = -1;
 	
 	@Override
@@ -40,6 +40,7 @@ public class main extends JavaPlugin implements Listener{
 		if(!this.getDataFolder().exists()) this.getDataFolder().mkdir();
 		this.saveDefaultConfig();
 		FileConfiguration loto = this.getConfig();
+		if(loto.isConfigurationSection("loto")){
 		Object[] loto_list_temp = loto.getConfigurationSection("loto").getKeys(false).toArray();
 		System.out.println("Chargement de " + loto_list_temp.length + " lotos.");
 		
@@ -51,20 +52,22 @@ public class main extends JavaPlugin implements Listener{
 			loto_list.get(i).delay = loto.getLong("loto."+loto_list_temp[i]+".delay") * 20;
 			loto_list.get(i).id_list = loto.getIntegerList("loto."+loto_list_temp[i]+".items");
 			World world = getServer().getWorld(loto.getString("loto."+loto_list_temp[i]+".location.world"));
-			int x = loto.getInt("loto."+loto_list_temp[i]+".location.x"); if(x < 0) x--;
+			int x = loto.getInt("loto."+loto_list_temp[i]+".location.x");
 			int y = loto.getInt("loto."+loto_list_temp[i]+".location.y");
-			int z = loto.getInt("loto."+loto_list_temp[i]+".location.z"); if(z < 0) z--;
+			int z = loto.getInt("loto."+loto_list_temp[i]+".location.z");
 			Location position = new Location(world, x, y, z);
 			loto_list.get(i).position = position;
 			loto_position_list.add(position);
 			position.getBlock().setTypeId(7);
+		}
 		}
 		
 		// Get permission plugin
 		Vault.load(this);
 		Vault.setupPermissions();
 		
-		// Initalize command listener
+		// Initialize command listener
+		LotoCommand.load(this);
 		getCommand("loto").setExecutor(CommandExecutor);
 	}
 	
