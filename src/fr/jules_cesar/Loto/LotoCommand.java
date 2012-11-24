@@ -38,16 +38,7 @@ public class LotoCommand extends JavaPlugin implements CommandExecutor {
 				else{
 					/* List of lotos */
 					if(arguments[0].equalsIgnoreCase("select") && arguments.length == 1){
-						sender.sendMessage(ChatColor.GOLD + "LOTO : Liste des lotos");
-						for(int i = 0; i < main.loto_list.size(); i++){
-							Loto loto = main.loto_list.get(i);
-							String world = loto.position.getWorld().getName();
-							int x = loto.position.getBlockX();
-							int y = loto.position.getBlockY();
-							int z = loto.position.getBlockZ();
-							sender.sendMessage(ChatColor.GOLD + "n¡" + i + ChatColor.AQUA + " " + world + " : " + x + "," + y + "," + z);
-						}
-						return true;
+						return showLotos(player);
 					}
 					/* Selection */
 					else if(arguments[0].equalsIgnoreCase("select")){
@@ -57,8 +48,7 @@ public class LotoCommand extends JavaPlugin implements CommandExecutor {
 							return true;
 						}
 						else{
-							sender.sendMessage(ChatColor.AQUA + "Merci de choisir un loto existant");
-							return false;
+							return showLotos(player);
 						}
 					}
 					
@@ -110,4 +100,17 @@ public class LotoCommand extends JavaPlugin implements CommandExecutor {
 		return true;
 	}
 
+	/* Return list of all lotos */
+	private boolean showLotos(Player player){
+		player.sendMessage(ChatColor.GOLD + "LOTO : Liste des lotos");
+		for(int i = 0; i < main.loto_list.size(); i++){
+			Loto loto = main.loto_list.get(i);
+			String world = loto.position.getWorld().getName();
+			int x = loto.position.getBlockX();
+			int y = loto.position.getBlockY();
+			int z = loto.position.getBlockZ();
+			player.sendMessage(ChatColor.GOLD + "n¡" + i + ChatColor.AQUA + " " + world + " : " + x + "," + y + "," + z);
+		}
+		return true;
+	}
 }
