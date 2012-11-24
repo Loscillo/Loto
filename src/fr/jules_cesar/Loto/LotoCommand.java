@@ -64,26 +64,7 @@ public class LotoCommand extends JavaPlugin implements CommandExecutor {
 					
 					/* Create */
 					else if(arguments[0].equalsIgnoreCase("create")){
-						Loto nouveau = new Loto();
-						int x = player.getLocation().getBlockX();
-						int y = player.getLocation().getBlockY();
-						int z = player.getLocation().getBlockZ();
-						World world = player.getLocation().getWorld();
-						nouveau.position = new Location(world, x, y ,z);
-						main.loto_list.add(nouveau);
-						main.loto_position_list.add(new Location(world, x, y ,z));
-						DateFormat dateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
-				        Date date = new Date();
-				        String name = dateFormat.format(date);
-						plugin.getConfig().set("loto."+name+".announce", nouveau.announce);
-						plugin.getConfig().set("loto."+name+".protection", nouveau.protection);
-						plugin.getConfig().set("loto."+name+".delay", nouveau.delay);
-						plugin.getConfig().set("loto."+name+".location.world", nouveau.position.getWorld().getName());
-						plugin.getConfig().set("loto."+name+".location.x", nouveau.position.getBlockX());
-						plugin.getConfig().set("loto."+name+".location.y", nouveau.position.getBlockY());
-						plugin.getConfig().set("loto."+name+".location.z", nouveau.position.getBlockZ());
-						plugin.saveConfig();
-						return true;
+						return create(player);
 					}
 					
 					/* Other */
@@ -101,6 +82,32 @@ public class LotoCommand extends JavaPlugin implements CommandExecutor {
 			sender.sendMessage("Only player use this.");
 			return false;
 		}
+	}
+	
+	/* Create a loto */
+	private boolean create(Player player){
+		Loto nouveau = new Loto();
+		int x = player.getLocation().getBlockX();
+		int y = player.getLocation().getBlockY();
+		int z = player.getLocation().getBlockZ();
+		World world = player.getLocation().getWorld();
+		nouveau.position = new Location(world, x, y ,z);
+		main.loto_list.add(nouveau);
+		main.loto_position_list.add(new Location(world, x, y ,z));
+		DateFormat dateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
+        Date date = new Date();
+        String name = dateFormat.format(date);
+		plugin.getConfig().set("loto."+name+".announce", nouveau.announce);
+		plugin.getConfig().set("loto."+name+".protection", nouveau.protection);
+		plugin.getConfig().set("loto."+name+".delay", nouveau.delay);
+		plugin.getConfig().set("loto."+name+".location.world", nouveau.position.getWorld().getName());
+		plugin.getConfig().set("loto."+name+".location.x", nouveau.position.getBlockX());
+		plugin.getConfig().set("loto."+name+".location.y", nouveau.position.getBlockY());
+		plugin.getConfig().set("loto."+name+".location.z", nouveau.position.getBlockZ());
+		plugin.saveConfig();
+		main.selected_id = main.loto_list.size() - 1;
+		player.sendMessage(ChatColor.GOLD + "[LOTO] " + ChatColor.AQUA + "Loto created and selected !");
+		return true;
 	}
 
 }
