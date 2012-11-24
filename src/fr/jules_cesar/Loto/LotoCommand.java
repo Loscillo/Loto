@@ -3,6 +3,8 @@ package fr.jules_cesar.Loto;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -27,14 +29,7 @@ public class LotoCommand extends JavaPlugin implements CommandExecutor {
 		if(sender instanceof Player){
 			Player player = (Player) sender;
 			if(Vault.perms.has(player, "loto.modification")){
-				if(arguments.length == 0){
-					sender.sendMessage(ChatColor.GOLD + "LOTO : Liste des commandes");
-					sender.sendMessage(ChatColor.AQUA + "/loto create : Creer un loto");
-					sender.sendMessage(ChatColor.AQUA + "/loto select [id] : Selectionner un loto");
-					sender.sendMessage(ChatColor.AQUA + "/loto delete : Supprimer le loto selectionne");
-					sender.sendMessage(ChatColor.AQUA + "/loto [attribut] [value] : Modifier l'attribut du loto selectionne");
-					return true;
-				}
+				if(arguments.length == 0) return showCommands(player);
 				else{
 					/* List of lotos */
 					if(arguments[0].equalsIgnoreCase("select") && arguments.length == 1){
@@ -42,25 +37,25 @@ public class LotoCommand extends JavaPlugin implements CommandExecutor {
 					}
 					/* Selection */
 					else if(arguments[0].equalsIgnoreCase("select")){
-						if(Integer.parseInt(arguments[1]) >= 0 && Integer.parseInt(arguments[1]) <= main.loto_list.size()-1){
-							main.selected_id = Integer.parseInt(arguments[1]);
-							sender.sendMessage(ChatColor.AQUA + "Loto n¡"+arguments[1]+" choisi");
-							return true;
+						if(isNumber(arguments[1])){
+							if(Integer.parseInt(arguments[1]) >= 0 && Integer.parseInt(arguments[1]) <= main.loto_list.size()-1){
+								main.selected_id = Integer.parseInt(arguments[1]);
+								sender.sendMessage(ChatColor.AQUA + "Loto n¡"+arguments[1]+" choisi");
+								return true;
+							}
+							else return showLotos(player);
 						}
 						else{
-							return showLotos(player);
+							sender.sendMessage(ChatColor.AQUA + "/loto select [number]");
+							return true;
 						}
 					}
 					
 					/* Create */
-					else if(arguments[0].equalsIgnoreCase("create")){
-						return create(player);
-					}
+					else if(arguments[0].equalsIgnoreCase("create")) return create(player);
 					
 					/* Other */
-					else{
-						return false;
-					}
+					else return showCommands(player);
 				}
 			}
 			else{
@@ -111,6 +106,24 @@ public class LotoCommand extends JavaPlugin implements CommandExecutor {
 			int z = loto.position.getBlockZ();
 			player.sendMessage(ChatColor.GOLD + "n¡" + i + ChatColor.AQUA + " " + world + " : " + x + "," + y + "," + z);
 		}
+		return true;
+	}
+
+	/* Return list of commands */
+	private boolean showCommands(Player player){
+		player.sendMessage(ChatColor.GOLD + "LOTO : Liste des commandes");
+		player.sendMessage(ChatColor.AQUA + "/loto create : Creer un loto");
+		player.sendMessage(ChatColor.AQUA + "/loto select [id] : Selectionner un loto");
+		player.sendMessage(ChatColor.AQUA + "/loto delete : Supprimer le loto selectionne");
+		player.sendMessage(ChatColor.AQUA + "/loto [attribut] [value] : Modifier l'attribut du loto selectionne");
+		return true;
+	}
+
+	/* Verify is the string not contain a letter */
+	private boolean isNumber(String string){
+		Pattern pattern = Pattern.compile("[a-zA-Z]");
+		Matcher matcher = pattern.matcher(string);
+		if(matcher.find()) return false;
 		return true;
 	}
 }
