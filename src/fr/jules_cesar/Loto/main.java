@@ -86,6 +86,7 @@ public class main extends JavaPlugin implements Listener{
 			Loto loto = loto_list.get(i);
 			if((loto.protection && !event.getPlayer().getName().equals(loto.player)) || !loto.protection){
 				loto_list.get(i).player = event.getPlayer().getName();
+				loto_list.get(i).activate = false;
 				int min = 0;
 				int max = loto.id_list.size();
 				if(max <= min){}
@@ -98,6 +99,7 @@ public class main extends JavaPlugin implements Listener{
 					getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 						public void run() {
 							bloc.getBlock().setTypeId(7);
+							loto_list.get(i).activate = true;
 						}
 					}, loto.delay);
 				}
@@ -127,7 +129,7 @@ public class main extends JavaPlugin implements Listener{
 					}
 					/*if(args[0].equals("delai")){
 						delai = Long.parseLong(args[1]);
-						sender.sendMessage("Le dŽlai est fixŽ ˆ " + delai);
+						sender.sendMessage("Le dï¿½lai est fixï¿½ ï¿½ " + delai);
 						this.getConfig().set("delai", delai);
 						this.saveConfig();
 						this.delai = delai * 20;
@@ -135,7 +137,7 @@ public class main extends JavaPlugin implements Listener{
 					}
 					else if(args[0].equals("protection")){
 						protection = Boolean.parseBoolean(args[1]);
-						sender.sendMessage("La protection est fixŽ ˆ " + protection);
+						sender.sendMessage("La protection est fixï¿½ ï¿½ " + protection);
 						this.getConfig().set("protection", protection);
 						this.saveConfig();
 						return true;
