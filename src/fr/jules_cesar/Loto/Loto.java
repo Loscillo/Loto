@@ -11,6 +11,7 @@ public class Loto {
 	public long delay;
 	public boolean protection;
 	public boolean announce;
+	public boolean activate;
 	public String player;
 	public Location position;
 	
@@ -20,6 +21,7 @@ public class Loto {
 		delay = 1200L;
 		protection = true;
 		announce = false;
+		activate = true;
 		player = null;
 		position = new Location(null, 0, 0, 0);
 	}
